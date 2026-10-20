@@ -24,6 +24,7 @@
 </div>
 
 ---
+**Watch the complete walkthrough of PriVista on youtube: https://youtu.be/I59mDbrqpyo**
 
 ## 📑 Table of Contents
 
