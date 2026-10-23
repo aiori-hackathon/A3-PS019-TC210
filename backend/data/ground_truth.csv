@@ -1,0 +1,33 @@
+dataset,column,true_class
+large_test_set.csv,customer_name,Name
+large_test_set.csv,email,Email ID
+large_test_set.csv,phone,Phone Number
+large_test_set.csv,pan_number,Government ID
+large_test_set.csv,aadhaar,Government ID
+large_test_set.csv,favorite_color,Non-PII
+large_test_set.csv,age,Non-PII
+large_test_set.csv,card_number,Financial Data
+large_test_set.csv,account_number,Financial Data
+large_test_set.csv,masked_card,Financial Data
+large_test_set.csv,alt_phone,Phone Number
+large_test_set.csv,order_id,Non-PII
+large_test_set.csv,invoice_no,Non-PII
+large_test_set.csv,sku,Non-PII
+large_test_set.csv,city,Non-PII
+large_test_set.csv,plan_name,Non-PII
+synthetic_kyc_payment_test_data.csv,Record_ID,Non-PII
+synthetic_kyc_payment_test_data.csv,Full_Name,Name
+synthetic_kyc_payment_test_data.csv,Aadhaar_Number,Government ID
+synthetic_kyc_payment_test_data.csv,PAN_Number,Government ID
+synthetic_kyc_payment_test_data.csv,Bank_Account_Number,Financial Data
+synthetic_kyc_payment_test_data.csv,IFSC_Code,Non-PII
+synthetic_kyc_payment_test_data.csv,Debit_Card_Number,Financial Data
+synthetic_kyc_payment_test_data.csv,Credit_Card_Number,Financial Data
+synthetic_kyc_payment_test_data (2).csv,text,Name
+synthetic_kyc_payment_test_data (2).csv,contact,Phone Number
+synthetic_kyc_payment_test_data (2).csv,gmail,Email ID
+synthetic_kyc_payment_test_data (2).csv,identity,Government ID
+synthetic_kyc_payment_test_data (2).csv,finance entry,Government ID
+synthetic_kyc_payment_test_data (2).csv,atm,Financial Data
+synthetic_kyc_payment_test_data (2).csv,normal,Financial Data
+synthetic_kyc_payment_test_data (2).csv,later,Financial Data
