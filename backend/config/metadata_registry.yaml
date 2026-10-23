@@ -1,0 +1,38 @@
+
+declarations:
+  - source: sample.customers
+    field: full_name
+    purpose: Identity Verification (KYC)
+    retention: 7 Years after account closure
+    owner: Compliance & Risk
+  - source: sample.customers
+    field: email
+    purpose: Account Notifications
+    retention: 2 Years after account closure
+    owner: Customer Success
+  - source: sample.customers
+    field: phone
+    purpose: Customer Support
+    retention: 2 Years after account closure
+  - source: sample.customers
+    field: aadhaar
+    purpose: Identity Verification (KYC)
+    retention: 7 Years after account closure
+    owner: Compliance & Risk
+  - source: sample.customers
+    field: pan
+    purpose: Tax Reporting
+    owner: Finance
+  - source: sample.payments
+    field: credit_card
+    purpose: Billing Settlement
+    retention: 3 Years
+    owner: Finance
+  - source: large_test_set.csv
+    field: customer_name
+    purpose: Customer Onboarding
+    retention: 5 Years
+  - source: large_test_set.csv
+    field: email
+    purpose: Account Notifications
+    retention: 2 Years

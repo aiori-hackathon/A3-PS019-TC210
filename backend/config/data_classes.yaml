@@ -1,0 +1,17 @@
+
+data_classes:
+  Name:
+    sensitivity: High
+    description: Names of natural persons
+  Email ID:
+    sensitivity: Medium
+    description: Email addresses
+  Phone Number:
+    sensitivity: Medium
+    description: Mobile and landline numbers
+  Financial Data:
+    sensitivity: Critical
+    description: Payment card and bank account numbers
+  Government ID:
+    sensitivity: Critical
+    description: Aadhaar, PAN and similar identifiers

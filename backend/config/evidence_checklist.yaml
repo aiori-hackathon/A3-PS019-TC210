@@ -1,0 +1,14 @@
+
+attributes:
+  - key: purpose
+    label: Declared Purpose
+    description: Business purpose declared for storing this field
+    required: true
+  - key: retention
+    label: Retention Schedule
+    description: Declared retention period for this field
+    required: true
+  - key: owner
+    label: Data Owner
+    description: Team or role accountable for this field
+    required: false
