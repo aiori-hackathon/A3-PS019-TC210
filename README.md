@@ -24,7 +24,7 @@
 </div>
 
 ---
-**Watch the complete walkthrough of PriVista on youtube: https://youtu.be/I59mDbrqpyo**
+<b>Watch the complete walkthrough of PriVista on YouTube:</b> <a href="https://youtu.be/I59mDbrqpyo"><img src="https://img.shields.io/badge/YouTube-Watch_Demo-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch Demo" /></a>
 
 ## 📑 Table of Contents
 
