@@ -1,6 +1,4 @@
 
-import json
-import shutil
 import threading
 import uuid
 from datetime import datetime
@@ -13,8 +11,9 @@ from app.core.config import (
     STORE_STATE_FILE,
     class_sensitivity,
 )
+from app.services import storage
 
-STATE_VERSION = 2
+STATE_VERSION = 3
 
 _lock = threading.RLock()
 inventory: Dict[str, Dict[str, Any]] = {}
@@ -32,32 +31,29 @@ def now_iso() -> str:
 def save_store() -> None:
     with _lock:
         try:
-            STORE_STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
             payload = {
                 "version": STATE_VERSION,
                 "inventory": inventory,
                 "scan_history": scan_history[-200:],
                 "uploads": uploads,
             }
-            tmp = STORE_STATE_FILE.with_suffix(".tmp")
-            tmp.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-            tmp.replace(STORE_STATE_FILE)
+            storage.write_json(STORE_STATE_FILE, payload)
         except Exception as e:
             print(f"Warning: failed to save store state: {e}")
 
 
 def load_store() -> None:
-    if not STORE_STATE_FILE.exists():
-        return
     try:
-        data = json.loads(STORE_STATE_FILE.read_text(encoding="utf-8"))
+        data = storage.read_json(STORE_STATE_FILE)
     except Exception as e:
         print(f"Warning: failed to load store state: {e}")
+        return
+    if data is None:
         return
     if data.get("version") != STATE_VERSION:
         # Pre-v2 state contained hard-coded demo records; keep a backup and start clean.
         backup = STORE_STATE_FILE.with_name("store_state.legacy.json")
-        shutil.copyfile(STORE_STATE_FILE, backup)
+        storage.write_json(backup, data)
         print(f"Info: legacy store state moved to {backup.name}; starting with an empty inventory.")
         return
     inventory.update(data.get("inventory") or {})
@@ -86,7 +82,7 @@ def evaluate_item(item: Dict[str, Any]) -> Dict[str, Any]:
 def review_label(item: Dict[str, Any]) -> str:
     decision = item.get("review_decision")
     if decision == "non_pii":
-        return "Rejected as Non-PII"
+        return "Rejected as not personal data"
     if decision == "confirmed":
         return "Confirmed by reviewer"
     if item.get("detected_class") in (None, NON_PII):
@@ -142,7 +138,7 @@ def apply_patch(item: Dict[str, Any], patch: Dict[str, Any]) -> Dict[str, Any]:
 
         decision = patch.get("review_decision")
         # Backwards compatibility with older clients that sent status/class = Non-PII
-        if patch.get("status") == NON_PII or patch.get("class") == NON_PII:
+        if patch.get("status") in (NON_PII, "Non-PII") or patch.get("class") in (NON_PII, "Non-PII"):
             decision = "non_pii"
         if decision == "non_pii":
             item["review_decision"] = "non_pii"
@@ -192,7 +188,7 @@ def gap_for(item: Dict[str, Any]) -> Dict[str, Any]:
         "gapReason": "Missing " + ", ".join(missing),
         "recommendation": (
             f"Record the declared {' and '.join(missing)} for {location} in the metadata registry, "
-            f"or mark the field as Non-PII if review shows it is not personal data."
+            f"or mark the field as not personal data if review confirms it holds none."
         ),
         "purpose": item.get("purpose"),
         "retention": item.get("retention"),

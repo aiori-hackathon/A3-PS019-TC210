@@ -1,33 +1,205 @@
-dataset,column,true_class
-large_test_set.csv,customer_name,Name
-large_test_set.csv,email,Email ID
-large_test_set.csv,phone,Phone Number
-large_test_set.csv,pan_number,Government ID
-large_test_set.csv,aadhaar,Government ID
-large_test_set.csv,favorite_color,Non-PII
-large_test_set.csv,age,Non-PII
-large_test_set.csv,card_number,Financial Data
-large_test_set.csv,account_number,Financial Data
-large_test_set.csv,masked_card,Financial Data
-large_test_set.csv,alt_phone,Phone Number
-large_test_set.csv,order_id,Non-PII
-large_test_set.csv,invoice_no,Non-PII
-large_test_set.csv,sku,Non-PII
-large_test_set.csv,city,Non-PII
-large_test_set.csv,plan_name,Non-PII
-synthetic_kyc_payment_test_data.csv,Record_ID,Non-PII
-synthetic_kyc_payment_test_data.csv,Full_Name,Name
-synthetic_kyc_payment_test_data.csv,Aadhaar_Number,Government ID
-synthetic_kyc_payment_test_data.csv,PAN_Number,Government ID
-synthetic_kyc_payment_test_data.csv,Bank_Account_Number,Financial Data
-synthetic_kyc_payment_test_data.csv,IFSC_Code,Non-PII
-synthetic_kyc_payment_test_data.csv,Debit_Card_Number,Financial Data
-synthetic_kyc_payment_test_data.csv,Credit_Card_Number,Financial Data
-synthetic_kyc_payment_test_data (2).csv,text,Name
-synthetic_kyc_payment_test_data (2).csv,contact,Phone Number
-synthetic_kyc_payment_test_data (2).csv,gmail,Email ID
-synthetic_kyc_payment_test_data (2).csv,identity,Government ID
-synthetic_kyc_payment_test_data (2).csv,finance entry,Government ID
-synthetic_kyc_payment_test_data (2).csv,atm,Financial Data
-synthetic_kyc_payment_test_data (2).csv,normal,Financial Data
-synthetic_kyc_payment_test_data (2).csv,later,Financial Data
+dataset,column,true_class,sub_type,source_type,notes
+synthetic/customers_kyc.csv,customer_id,Not personal data,Record ID,csv,
+synthetic/customers_kyc.csv,full_name,Personal identity,Name,csv,
+synthetic/customers_kyc.csv,date_of_birth,Personal identity,Date of birth,csv,
+synthetic/customers_kyc.csv,gender,Personal identity,Gender,csv,
+synthetic/customers_kyc.csv,age,Personal identity,Age,csv,
+synthetic/customers_kyc.csv,email,Contact information,Email address,csv,
+synthetic/customers_kyc.csv,alternate_email,Contact information,Email address,csv,
+synthetic/customers_kyc.csv,mobile,Contact information,Phone number,csv,
+synthetic/customers_kyc.csv,aadhaar_number,Government identifiers,Aadhaar,csv,
+synthetic/customers_kyc.csv,pan_number,Government identifiers,PAN,csv,
+synthetic/customers_kyc.csv,passport_no,Government identifiers,Passport,csv,
+synthetic/customers_kyc.csv,voter_id,Government identifiers,Voter ID,csv,
+synthetic/customers_kyc.csv,driving_licence,Government identifiers,Driving licence,csv,
+synthetic/customers_kyc.csv,residential_address,Location / address,Postal address,csv,
+synthetic/customers_kyc.csv,permanent_address,Location / address,Postal address,csv,
+synthetic/customers_kyc.csv,pincode,Location / address,PIN code,csv,
+synthetic/customers_kyc.csv,kyc_status,Not personal data,Status,csv,
+synthetic/customers_kyc.csv,created_at,Not personal data,Timestamp,csv,look-alike: date (date of birth)
+synthetic/customers_kyc.csv,branch_city,Not personal data,City,csv,city alone is not a postal address
+synthetic/customers_kyc.csv,customer_segment,Not personal data,Category,csv,
+synthetic/payments.csv,txn_id,Not personal data,Record ID,csv,
+synthetic/payments.csv,payer_name,Personal identity,Name,csv,
+synthetic/payments.csv,payer_email,Contact information,Email address,csv,
+synthetic/payments.csv,payer_phone,Contact information,Phone number,csv,
+synthetic/payments.csv,payer_pan,Government identifiers,PAN,csv,
+synthetic/payments.csv,card_number,Financial information,Card number,csv,
+synthetic/payments.csv,rupay_card,Financial information,Card number,csv,
+synthetic/payments.csv,masked_card,Financial information,Card number,csv,
+synthetic/payments.csv,bank_account_no,Financial information,Bank account number,csv,
+synthetic/payments.csv,ifsc_code,Financial information,IFSC,csv,
+synthetic/payments.csv,beneficiary_account,Financial information,Bank account number,csv,
+synthetic/payments.csv,beneficiary_ifsc,Financial information,IFSC,csv,
+synthetic/payments.csv,upi_id,Financial information,UPI ID,csv,
+synthetic/payments.csv,refund_upi,Financial information,UPI ID,csv,
+synthetic/payments.csv,amount,Not personal data,Amount,csv,
+synthetic/payments.csv,order_id,Not personal data,Order ID,csv,look-alike: 10-digit mobile number
+synthetic/payments.csv,invoice_no,Not personal data,Invoice number,csv,look-alike: Aadhaar 4-4-4
+synthetic/payments.csv,txn_date,Not personal data,Date,csv,look-alike: date of birth
+synthetic/payments.csv,payment_status,Not personal data,Status,csv,
+synthetic/payments.csv,currency,Not personal data,Currency code,csv,
+synthetic/delivery_orders.csv,order_ref,Not personal data,Record ID,csv,
+synthetic/delivery_orders.csv,recipient,Personal identity,Name,csv,
+synthetic/delivery_orders.csv,recipient_email,Contact information,Email address,csv,
+synthetic/delivery_orders.csv,contact_no,Contact information,Phone number,csv,
+synthetic/delivery_orders.csv,alt_contact,Contact information,Phone number,csv,
+synthetic/delivery_orders.csv,shipping_address,Location / address,Postal address,csv,
+synthetic/delivery_orders.csv,pickup_address,Location / address,Postal address,csv,
+synthetic/delivery_orders.csv,delivery_pincode,Location / address,PIN code,csv,
+synthetic/delivery_orders.csv,drop_location,Location / address,Geo-coordinates,csv,
+synthetic/delivery_orders.csv,pickup_lat_long,Location / address,Geo-coordinates,csv,
+synthetic/delivery_orders.csv,cod_upi,Financial information,UPI ID,csv,
+synthetic/delivery_orders.csv,warehouse_code,Not personal data,Warehouse code,csv,look-alike: IFSC
+synthetic/delivery_orders.csv,sku,Not personal data,SKU,csv,look-alike: PAN
+synthetic/delivery_orders.csv,package_weight,Not personal data,Weight,csv,look-alike: single coordinate
+synthetic/delivery_orders.csv,otp,Not personal data,One-time password,csv,look-alike: 6-digit PIN code
+synthetic/delivery_orders.csv,delivery_date,Not personal data,Date,csv,look-alike: date of birth
+synthetic/delivery_orders.csv,delivery_slot,Not personal data,Category,csv,
+synthetic/hr_employees.csv,emp_id,Not personal data,Record ID,csv,
+synthetic/hr_employees.csv,employee_name,Personal identity,Name,csv,
+synthetic/hr_employees.csv,birth_date,Personal identity,Date of birth,csv,
+synthetic/hr_employees.csv,sex,Personal identity,Gender,csv,
+synthetic/hr_employees.csv,age_years,Personal identity,Age,csv,
+synthetic/hr_employees.csv,work_email,Contact information,Email address,csv,
+synthetic/hr_employees.csv,personal_phone,Contact information,Phone number,csv,
+synthetic/hr_employees.csv,emergency_contact_phone,Contact information,Phone number,csv,
+synthetic/hr_employees.csv,pan,Government identifiers,PAN,csv,
+synthetic/hr_employees.csv,aadhaar,Government identifiers,Aadhaar,csv,
+synthetic/hr_employees.csv,passport,Government identifiers,Passport,csv,
+synthetic/hr_employees.csv,driving_licence_no,Government identifiers,Driving licence,csv,
+synthetic/hr_employees.csv,voter_card,Government identifiers,Voter ID,csv,
+synthetic/hr_employees.csv,salary_account,Financial information,Bank account number,csv,
+synthetic/hr_employees.csv,salary_ifsc,Financial information,IFSC,csv,
+synthetic/hr_employees.csv,reimbursement_upi,Financial information,UPI ID,csv,
+synthetic/hr_employees.csv,home_address,Location / address,Postal address,csv,
+synthetic/hr_employees.csv,home_pin,Location / address,PIN code,csv,
+synthetic/hr_employees.csv,joining_date,Not personal data,Date,csv,look-alike: date of birth
+synthetic/hr_employees.csv,department,Not personal data,Category,csv,
+synthetic/hr_employees.csv,grade,Not personal data,Category,csv,
+synthetic/hr_employees.csv,rating,Not personal data,Score,csv,look-alike: age
+synthetic/hr_employees.csv,shift,Not personal data,Category,csv,
+synthetic/patients.csv,patient_id,Not personal data,Record ID,csv,
+synthetic/patients.csv,patient_name,Personal identity,Name,csv,
+synthetic/patients.csv,patient_dob,Personal identity,Date of birth,csv,
+synthetic/patients.csv,patient_gender,Personal identity,Gender,csv,
+synthetic/patients.csv,patient_age,Personal identity,Age,csv,
+synthetic/patients.csv,guardian_name,Personal identity,Name,csv,
+synthetic/patients.csv,contact_email,Contact information,Email address,csv,
+synthetic/patients.csv,contact_phone,Contact information,Phone number,csv,
+synthetic/patients.csv,guardian_phone,Contact information,Phone number,csv,
+synthetic/patients.csv,patient_aadhaar,Government identifiers,Aadhaar,csv,
+synthetic/patients.csv,address_line,Location / address,Postal address,csv,
+synthetic/patients.csv,pin_code,Location / address,PIN code,csv,
+synthetic/patients.csv,gps_location,Location / address,Geo-coordinates,csv,
+synthetic/patients.csv,ward,Not personal data,Ward,csv,
+synthetic/patients.csv,bed_no,Not personal data,Bed number,csv,
+synthetic/patients.csv,admission_date,Not personal data,Date,csv,look-alike: date of birth
+synthetic/patients.csv,discharge_date,Not personal data,Date,csv,look-alike: date of birth
+synthetic/patients.csv,blood_group,Not personal data,Health attribute,csv,sensitive but outside the five classes
+synthetic/patients.csv,department,Not personal data,Category,csv,
+synthetic/vague_columns.csv,col_a,Personal identity,Name,csv,
+synthetic/vague_columns.csv,col_b,Contact information,Email address,csv,
+synthetic/vague_columns.csv,col_c,Contact information,Phone number,csv,
+synthetic/vague_columns.csv,col_d,Government identifiers,Aadhaar,csv,
+synthetic/vague_columns.csv,col_e,Government identifiers,PAN,csv,
+synthetic/vague_columns.csv,col_f,Government identifiers,Voter ID,csv,
+synthetic/vague_columns.csv,col_g,Government identifiers,Driving licence,csv,
+synthetic/vague_columns.csv,col_h,Financial information,Card number,csv,
+synthetic/vague_columns.csv,col_i,Financial information,IFSC,csv,
+synthetic/vague_columns.csv,col_j,Financial information,UPI ID,csv,
+synthetic/vague_columns.csv,col_k,Location / address,Postal address,csv,
+synthetic/vague_columns.csv,col_l,Location / address,Geo-coordinates,csv,
+synthetic/vague_columns.csv,col_m,Personal identity,Gender,csv,
+synthetic/vague_columns.csv,col_u,Contact information,Phone number,csv,
+synthetic/vague_columns.csv,col_w,Location / address,Postal address,csv,
+synthetic/vague_columns.csv,col_s,Personal identity,Date of birth,csv,"hard case: no column-name context, value alone is ambiguous"
+synthetic/vague_columns.csv,col_t,Financial information,Bank account number,csv,"hard case: no column-name context, value alone is ambiguous"
+synthetic/vague_columns.csv,col_n,Not personal data,Random words,csv,
+synthetic/vague_columns.csv,col_o,Not personal data,Code,csv,
+synthetic/vague_columns.csv,col_p,Not personal data,UUID,csv,
+synthetic/vague_columns.csv,col_q,Not personal data,Version string,csv,
+synthetic/vague_columns.csv,col_r,Not personal data,Colour code,csv,
+synthetic/lookalikes.csv,order_number,Not personal data,Order number,csv,look-alike: mobile number
+synthetic/lookalikes.csv,invoice_number,Not personal data,Invoice number,csv,look-alike: Aadhaar
+synthetic/lookalikes.csv,product_sku,Not personal data,SKU,csv,look-alike: PAN
+synthetic/lookalikes.csv,tracking_id,Not personal data,Tracking number,csv,look-alike: Luhn-valid card number
+synthetic/lookalikes.csv,coupon_code,Not personal data,Coupon code,csv,look-alike: voter ID
+synthetic/lookalikes.csv,batch_no,Not personal data,Batch number,csv,look-alike: passport
+synthetic/lookalikes.csv,ticket_ref,Not personal data,Ticket reference,csv,look-alike: driving licence
+synthetic/lookalikes.csv,build_tag,Not personal data,Build tag,csv,look-alike: UPI ID
+synthetic/lookalikes.csv,product_code,Not personal data,Product code,csv,look-alike: PIN code
+synthetic/lookalikes.csv,unit_price,Not personal data,Price,csv,look-alike: single coordinate
+synthetic/lookalikes.csv,temperature_c,Not personal data,Temperature,csv,look-alike: single coordinate
+synthetic/lookalikes.csv,test_score,Not personal data,Score,csv,look-alike: age
+synthetic/lookalikes.csv,quantity,Not personal data,Quantity,csv,look-alike: age
+synthetic/lookalikes.csv,event_date,Not personal data,Date,csv,look-alike: date of birth
+synthetic/lookalikes.csv,size,Not personal data,Size,csv,look-alike: gender M/F
+synthetic/lookalikes.csv,city,Not personal data,City,csv,city alone is not a postal address
+synthetic/lookalikes.csv,state,Not personal data,State,csv,
+synthetic/lookalikes.csv,country,Not personal data,Country,csv,
+synthetic/lookalikes.csv,plan_name,Not personal data,Plan name,csv,
+synthetic/lookalikes.csv,colour,Not personal data,Colour,csv,
+synthetic/lookalikes.csv,gstin,Not personal data,GSTIN (business tax ID),csv,look-alike: contains a PAN-shaped part
+synthetic/lookalikes.csv,ip_address,Not personal data,IP address,csv,look-alike: 'address' column name
+synthetic/lookalikes.csv,mac_address,Not personal data,MAC address,csv,look-alike: 'address' column name
+synthetic/lookalikes.csv,vehicle_reg,Not personal data,Vehicle registration,csv,look-alike: driving licence state code
+synthetic/lookalikes.csv,isbn,Not personal data,ISBN,csv,look-alike: phone number
+synthetic/lookalikes.csv,pnr,Not personal data,PNR,csv,look-alike: 10-digit number
+synthetic/lookalikes.csv,hsn_code,Not personal data,HSN code,csv,
+synthetic/lookalikes.csv,employee_count,Not personal data,Count,csv,look-alike: age
+sample.db:customers,customer_id,Not personal data,Record ID,sql,
+sample.db:customers,full_name,Personal identity,Name,sql,
+sample.db:customers,dob,Personal identity,Date of birth,sql,
+sample.db:customers,gender,Personal identity,Gender,sql,
+sample.db:customers,email,Contact information,Email address,sql,
+sample.db:customers,phone,Contact information,Phone number,sql,
+sample.db:customers,aadhaar,Government identifiers,Aadhaar,sql,
+sample.db:customers,pan,Government identifiers,PAN,sql,
+sample.db:customers,passport_no,Government identifiers,Passport,sql,
+sample.db:customers,address,Location / address,Postal address,sql,
+sample.db:customers,pincode,Location / address,PIN code,sql,
+sample.db:customers,city,Not personal data,City,sql,city alone is not a postal address
+sample.db:customers,segment,Not personal data,Category,sql,
+sample.db:customers,created_at,Not personal data,Timestamp,sql,look-alike: date (date of birth)
+sample.db:accounts,account_id,Not personal data,Record ID,sql,look-alike: 'account' column name
+sample.db:accounts,customer_id,Not personal data,Foreign key,sql,
+sample.db:accounts,account_number,Financial information,Bank account number,sql,
+sample.db:accounts,ifsc,Financial information,IFSC,sql,
+sample.db:accounts,upi_handle,Financial information,UPI ID,sql,
+sample.db:accounts,debit_card,Financial information,Card number,sql,
+sample.db:accounts,credit_card,Financial information,Card number,sql,
+sample.db:accounts,balance,Not personal data,Amount,sql,
+sample.db:accounts,opened_on,Not personal data,Date,sql,look-alike: date of birth
+sample.db:accounts,account_type,Not personal data,Category,sql,look-alike: 'account' column name
+sample.db:kyc_documents,doc_id,Not personal data,Record ID,sql,
+sample.db:kyc_documents,customer_id,Not personal data,Foreign key,sql,
+sample.db:kyc_documents,passport_number,Government identifiers,Passport,sql,
+sample.db:kyc_documents,voter_epic,Government identifiers,Voter ID,sql,
+sample.db:kyc_documents,dl_no,Government identifiers,Driving licence,sql,
+sample.db:kyc_documents,verification_status,Not personal data,Status,sql,
+sample.db:kyc_documents,uploaded_at,Not personal data,Timestamp,sql,
+sample.db:branch_visits,visit_id,Not personal data,Record ID,sql,
+sample.db:branch_visits,customer_id,Not personal data,Foreign key,sql,
+sample.db:branch_visits,latitude,Location / address,Geo-coordinates,sql,
+sample.db:branch_visits,longitude,Location / address,Geo-coordinates,sql,
+sample.db:branch_visits,visit_pin,Location / address,PIN code,sql,
+sample.db:branch_visits,device_id,Not personal data,Device ID,sql,
+sample.db:branch_visits,visited_at,Not personal data,Timestamp,sql,
+sample.db:branch_visits,duration_min,Not personal data,Duration,sql,look-alike: age
+sample.db:support_tickets,ticket_id,Not personal data,Record ID,sql,
+sample.db:support_tickets,raised_by_email,Contact information,Email address,sql,
+sample.db:support_tickets,callback_number,Contact information,Phone number,sql,
+sample.db:support_tickets,subject,Not personal data,Free text,sql,
+sample.db:support_tickets,priority,Not personal data,Category,sql,
+sample.db:support_tickets,created_at,Not personal data,Timestamp,sql,
+sample.db:products,product_id,Not personal data,Record ID,sql,
+sample.db:products,product_name,Not personal data,Product name,sql,look-alike: 'name' column name
+sample.db:products,product_code,Not personal data,Product code,sql,look-alike: PAN
+sample.db:products,price,Not personal data,Price,sql,
+sample.db:products,stock,Not personal data,Quantity,sql,look-alike: age
+sample.db:products,category,Not personal data,Category,sql,
+sample.db:system_logs,log_id,Not personal data,Record ID,sql,
+sample.db:system_logs,event_type,Not personal data,Category,sql,
+sample.db:system_logs,message,Not personal data,Free text,sql,
+sample.db:system_logs,created_at,Not personal data,Timestamp,sql,

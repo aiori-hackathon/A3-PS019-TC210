@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 
 
 class SQLConnection(BaseModel):
-    dialect: str = "SQLite"          # SQLite | PostgreSQL | MySQL
+    dialect: str = "SQLite"          # SQLite 
     host: str = ""
     port: str = ""
     dbName: str = "data/sample.db"   # file path for SQLite, database name otherwise
@@ -26,8 +26,8 @@ class EvaluationRequest(BaseModel):
 
 
 class ScanStartRequest(BaseModel):
-    sourceType: str                   # "csv" | "sql"
-    sourceRef: Any                    # upload id (csv) or SQLConnection dict (sql)
+    sourceType: str                   # "csv" | "sql" | "sqlite"
+    sourceRef: Any                    # upload id (csv, sqlite) or SQLConnection dict (sql)
     checklist: Dict[str, bool] = {}
 
 

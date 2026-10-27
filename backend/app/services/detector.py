@@ -14,6 +14,7 @@ from app.core.config import (
     RULES_CONFIG,
     RULES_STATE_FILE,
 )
+from app.services import storage
 from app.services.validators import VALIDATORS
 
 print("Loading Presidio NLP engine (spaCy en_core_web_lg)...")
@@ -31,11 +32,10 @@ CUSTOM_BASE_SCORE = 0.85
 
 
 def _load_state() -> Dict[str, Any]:
-    if RULES_STATE_FILE.exists():
-        try:
-            return json.loads(RULES_STATE_FILE.read_text(encoding="utf-8"))
-        except Exception as e: 
-            print(f"Warning: could not read {RULES_STATE_FILE.name}: {e}")
+    try:
+        return storage.read_json(RULES_STATE_FILE) or {}
+    except Exception as e:
+        print(f"Warning: could not read {RULES_STATE_FILE.name}: {e}")
     return {}
 
 
@@ -44,8 +44,7 @@ def _save_state() -> None:
         "enabled": {rid: r["enabled"] for rid, r in _rules.items()},
         "custom": [r for r in _rules.values() if not r.get("builtin")],
     }
-    RULES_STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
-    RULES_STATE_FILE.write_text(json.dumps(state, indent=2), encoding="utf-8")
+    storage.write_json(RULES_STATE_FILE, state)
 
 
 class ValidatedPatternRecognizer(PatternRecognizer):
@@ -365,6 +364,27 @@ def _passes(rule: Dict[str, Any], matched_text: str) -> bool:
     return not name or name not in VALIDATORS or VALIDATORS[name](matched_text)
 
 
+def _accepted_results(text: str, results: List[Any], rules: Dict[str, Dict[str, Any]]) -> List[Any]:
+    """Results that pass their rule's validator and min_score, minus results nested in a larger match.
+
+    A match lying strictly inside a longer match of a different class is part of that longer value
+    (a name inside an address, the digits before '@' in a UPI ID), so it is dropped. The longer match
+    counts even when it is below its own threshold: '9876543210@somebank' is not a phone number, even
+    if the UPI rule alone is not confident enough to report it.
+    """
+    valid = [r for r in results if r.entity_type in rules and _passes(rules[r.entity_type], text[r.start:r.end])]
+
+    def nested(r: Any) -> bool:
+        cls = rules[r.entity_type]["data_class"]
+        return any(
+            o is not r and rules[o.entity_type]["data_class"] != cls
+            and o.start <= r.start and o.end >= r.end and (o.end - o.start) > (r.end - r.start)
+            for o in valid
+        )
+
+    return [r for r in valid if r.score >= rules[r.entity_type]["min_score"] and not nested(r)]
+
+
 def analyze_text(text: str, context: Optional[List[str]] = None) -> List[Dict[str, Any]]:
     """Run all enabled rules on free text. Used by the rule sandbox."""
     active = _active_rules()
@@ -377,10 +397,8 @@ def analyze_text(text: str, context: Optional[List[str]] = None) -> List[Dict[st
         context=context or None, return_decision_process=True,
     )
     out = []
-    for res in results:
-        rule = active.get(res.entity_type)
-        if not rule or res.score < rule["min_score"] or not _passes(rule, text[res.start:res.end]):
-            continue
+    for res in _accepted_results(text, results, active):
+        rule = active[res.entity_type]
         out.append({
             "rule_id": rule["id"],
             "rule_name": rule["name"],
@@ -442,11 +460,8 @@ def analyze_column(
             context=context or None, return_decision_process=True,
         )
         best: Dict[str, Any] = {}
-        for res in results:
-            rule = value_rules.get(res.entity_type)
-            if not rule or res.score < rule["min_score"] or not _passes(rule, val[res.start:res.end]):
-                continue
-            cls = rule["data_class"]
+        for res in _accepted_results(val, results, value_rules):
+            cls = value_rules[res.entity_type]["data_class"]
             if cls not in best or res.score > best[cls].score:
                 best[cls] = res
         if on_value:

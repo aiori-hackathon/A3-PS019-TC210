@@ -83,7 +83,7 @@ export default function Evaluation() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="bg-white p-6 rounded-xl border border-slate-200 card-shadow lg:col-span-2">
               <h2 className="text-base font-bold text-slate-900">Per-Class Precision / Recall / F1</h2>
-              <p className="text-xs text-slate-500 mb-4">Each sampled value is scored against its column's true class. Values in Non-PII columns are negatives: predicting a class for them is a false positive.</p>
+              <p className="text-xs text-slate-500 mb-4">Each sampled value is scored against its column's true class. Values in "Not personal data" columns are negatives: predicting a class for them is a false positive.</p>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={data.categories} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -122,13 +122,13 @@ export default function Evaluation() {
             </div>
 
             <div className="bg-white p-6 rounded-xl border border-slate-200 card-shadow">
-              <h2 className="text-base font-bold text-slate-900 mb-1">PII vs. Non-PII</h2>
+              <h2 className="text-base font-bold text-slate-900 mb-1">Personal vs. Not Personal Data</h2>
               <p className="text-xs text-slate-500 mb-4">Each sample counted once.</p>
               <div className="grid grid-cols-2 gap-2 text-center text-xs">
                 <ConfusionCell label="True Positive" value={cm.true_positive} hint="PII detected" cls="bg-blue-50 border-blue-200 text-blue-900" />
-                <ConfusionCell label="False Positive" value={cm.false_positive} hint="Non-PII flagged" cls="bg-slate-50 border-slate-200 text-slate-800" />
+                <ConfusionCell label="False Positive" value={cm.false_positive} hint="Not personal, flagged" cls="bg-slate-50 border-slate-200 text-slate-800" />
                 <ConfusionCell label="False Negative" value={cm.false_negative} hint="PII missed" cls="bg-slate-50 border-slate-200 text-slate-800" />
-                <ConfusionCell label="True Negative" value={cm.true_negative} hint="Non-PII ignored" cls="bg-slate-100 border-slate-200 text-slate-800" />
+                <ConfusionCell label="True Negative" value={cm.true_negative} hint="Not personal, ignored" cls="bg-slate-100 border-slate-200 text-slate-800" />
               </div>
               <p className="mt-3 text-[11px] text-slate-500">{cm.wrong_class} PII sample(s) detected but assigned the wrong class.</p>
             </div>

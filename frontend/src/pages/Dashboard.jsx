@@ -8,6 +8,7 @@ import { api, display, errorMessage } from '../services/api';
 import MetadataModal from '../components/common/MetadataModal';
 import ErrorBanner from '../components/common/ErrorBanner';
 import StatusBadge from '../components/common/StatusBadge';
+import { NOT_PERSONAL } from '../constants';
 
 const EMPTY_SUMMARY = {
   total_sources: 0, total_sources_sub: '—', pii_fields: 0, pii_change: 'No scans yet', metadata_matched: 0,
@@ -69,7 +70,7 @@ export default function Dashboard() {
     await load();
   };
 
-  const piiItems = inventory.filter((i) => i.status !== 'Non-PII');
+  const piiItems = inventory.filter((i) => i.status !== NOT_PERSONAL);
   const q = searchQuery.toLowerCase();
   const filteredInventory = piiItems.filter((i) => [i.field, i.class, i.source].join(' ').toLowerCase().includes(q));
   const totalPii = charts.pii_by_class.reduce((a, b) => a + b.value, 0);
@@ -99,7 +100,7 @@ export default function Dashboard() {
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div>
             <p className="text-sm font-bold text-blue-900">No scans yet</p>
-            <p className="text-xs text-blue-800 mt-0.5">Scan the bundled SQLite database (<code>data/sample.db</code>) or upload a CSV to populate the evidence inventory.</p>
+            <p className="text-xs text-blue-800 mt-0.5">Connect a PostgreSQL or MySQL database or upload a CSV to populate the evidence inventory.</p>
           </div>
           <button type="button" onClick={() => navigate('/scan')} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold cursor-pointer">Run first scan</button>
         </div>

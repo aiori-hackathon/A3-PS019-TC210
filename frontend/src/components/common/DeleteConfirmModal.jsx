@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Trash2, AlertTriangle, X, Loader2, Database, Tag } from 'lucide-react';
+import { NOT_PERSONAL } from '../../constants';
 
 export default function DeleteConfirmModal({
   isOpen,
@@ -53,7 +54,7 @@ export default function DeleteConfirmModal({
               </div>
               <div>
                 <h3 id="delete-dialog-title" className="text-base font-bold text-slate-900 tracking-tight">
-                  Delete Non-PII Record
+                  Delete Not-Personal-Data Record
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
                   Confirm permanent removal from active inventory
@@ -76,7 +77,7 @@ export default function DeleteConfirmModal({
             <div className="flex items-center justify-between gap-2">
               <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Field Name</span>
               <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-slate-200/70 text-slate-700 border border-slate-300">
-                Non-PII Record
+                Not Personal Data
               </span>
             </div>
 
@@ -93,7 +94,7 @@ export default function DeleteConfirmModal({
               </div>
               <div className="flex items-center gap-1.5 truncate justify-end">
                 <Tag size={12} className="text-slate-400 shrink-0" />
-                <span className="truncate">{item.class || 'Non-PII'}</span>
+                <span className="truncate">{item.class || NOT_PERSONAL}</span>
               </div>
             </div>
           </div>
@@ -102,7 +103,7 @@ export default function DeleteConfirmModal({
           <div className="mt-4 p-3 rounded-xl bg-amber-50/70 border border-amber-200/80 flex items-start gap-2.5 text-xs text-amber-900 leading-relaxed">
             <AlertTriangle size={15} className="text-amber-600 shrink-0 mt-0.5" />
             <p>
-              This field is classified as <strong>Non-PII</strong>. Deleting it removes it from the inventory without affecting evidence coverage metrics. A later scan of the same source will list it again.
+              This field is classified as <strong>{NOT_PERSONAL}</strong>. Deleting it removes it from the inventory without affecting evidence coverage metrics. A later scan of the same source will list it again.
             </p>
           </div>
 

@@ -1,20 +1,8 @@
 
-"""
-Evaluation of the detector against labelled test data.
-
-The only inputs are the datasets named in data/ground_truth.csv (dataset,column,true_class):
-  large_test_set.csv, synthetic_kyc_payment_test_data.csv, synthetic_kyc_payment_test_data (2).csv
-
-Each labelled column is scanned once, with the same code path as the scanner (analyze_column):
-1. Column-level: the column's predicted class vs its true class.
-2. Value-level:  every sampled value of the column vs the column's true class. A value's
-                 prediction is the class it would get if scanned on its own under that column name.
-
-Per-class precision / recall / F1 are computed over the 5 predefined classes.
-"Non-PII" columns act as negatives: predicting a class for them is a false positive.
-"""
+import sqlite3
 import threading
 import time
+from contextlib import closing
 from typing import Any, Dict, List, Optional
 
 import pandas as pd
@@ -25,13 +13,20 @@ from app.services.detector import analyze_column, rules_version
 
 MAX_ERRORS_SHOWN = 100  # misclassified values returned to the UI (the total is always reported)
 
+# Accepts the organizers' class names, short forms, and the older PriVista class names.
+_IDENTITY, _CONTACT, _GOV, _FIN, _LOC = (
+    "Personal identity", "Contact information", "Government identifiers",
+    "Financial information", "Location / address",
+)
 _LABEL_ALIASES = {
-    "name": "Name", "person": "Name",
-    "email": "Email ID", "email id": "Email ID", "email_address": "Email ID",
-    "phone": "Phone Number", "phone number": "Phone Number", "mobile": "Phone Number",
-    "financial": "Financial Data", "financial data": "Financial Data",
-    "government id": "Government ID", "gov id": "Government ID", "govt id": "Government ID",
-    "unknown": NON_PII, "non-pii": NON_PII, "none": NON_PII, "": NON_PII,
+    "personal identity": _IDENTITY, "identity": _IDENTITY, "name": _IDENTITY, "person": _IDENTITY,
+    "contact information": _CONTACT, "contact": _CONTACT, "email": _CONTACT, "email id": _CONTACT,
+    "email_address": _CONTACT, "phone": _CONTACT, "phone number": _CONTACT, "mobile": _CONTACT,
+    "government identifiers": _GOV, "government identifier": _GOV, "government id": _GOV,
+    "gov id": _GOV, "govt id": _GOV,
+    "financial information": _FIN, "financial": _FIN, "financial data": _FIN,
+    "location / address": _LOC, "location/address": _LOC, "location": _LOC, "address": _LOC,
+    "not personal data": NON_PII, "unknown": NON_PII, "non-pii": NON_PII, "none": NON_PII, "": NON_PII,
 }
 
 _cache: Dict[str, Any] = {"version": None, "result": None}
@@ -50,7 +45,7 @@ def _pct(x: float) -> float:
 
 
 def compute_metrics(true_labels: List[str], predicted_labels: List[str]) -> Dict[str, Any]:
-    """Per-class and averaged metrics over the 5 data classes (Non-PII = negative class)."""
+    """Per-class and averaged metrics over the 5 data classes (Not personal data = negative class)."""
     precision, recall, f1, support = precision_recall_fscore_support(
         true_labels, predicted_labels, labels=DATA_CLASSES, average=None, zero_division=0
     )
@@ -111,9 +106,27 @@ def _load_ground_truth() -> pd.DataFrame:
     return truth
 
 
-def run_evaluation() -> Dict[str, Any]:
-    from app.services.scanner import read_csv  # local import avoids a cycle
+def _load_dataset(name: str) -> Optional[pd.DataFrame]:
+    """CSV file or SQLite table named in the ground truth; None if it does not exist."""
+    from app.services.scanner import MAX_SQL_ROWS, read_csv  # local import avoids a cycle
 
+    db_name, sep, table_name = name.partition(":")
+    if sep and db_name.lower().endswith((".db", ".sqlite", ".sqlite3")):
+        path = DATA_DIR / db_name
+        if not path.is_file():
+            return None
+        with closing(sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True)) as conn:
+            exists = conn.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (table_name,)).fetchone()
+            if not exists:
+                return None
+            quoted = '"' + table_name.replace('"', '""') + '"'
+            # Same row limit as the SQL scanner.
+            return pd.read_sql_query(f"SELECT * FROM {quoted} LIMIT {int(MAX_SQL_ROWS)}", conn, dtype=str)
+    path = DATA_DIR / name
+    return read_csv(path) if path.is_file() else None
+
+
+def run_evaluation() -> Dict[str, Any]:
     truth = _load_ground_truth()
     datasets = list(dict.fromkeys(truth["dataset"].str.strip()))
 
@@ -129,11 +142,10 @@ def run_evaluation() -> Dict[str, Any]:
     started = time.perf_counter()
 
     for name in datasets:
-        path = DATA_DIR / name
-        if not path.is_file():
-            skipped.append(f"{name} (file not found)")
+        df = _load_dataset(name)
+        if df is None:
+            skipped.append(f"{name} (not found)")
             continue
-        df = read_csv(path)
         used.append(name)
         sub_val_true, sub_val_pred, sub_col_true, sub_col_pred = [], [], [], []
 

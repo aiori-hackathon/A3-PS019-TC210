@@ -6,6 +6,7 @@ import MetadataModal from '../components/common/MetadataModal';
 import DeleteConfirmModal from '../components/common/DeleteConfirmModal';
 import ErrorBanner from '../components/common/ErrorBanner';
 import StatusBadge from '../components/common/StatusBadge';
+import { DATA_CLASSES, NOT_PERSONAL } from '../constants';
 
 const csvCell = (v) => {
   const s = v === null || v === undefined ? '' : Array.isArray(v) ? v.join('; ') : String(v);
@@ -66,7 +67,7 @@ export default function Inventory() {
       await api.deleteInventory(item.id);
       setInventory((prev) => prev.filter((i) => i.id !== item.id));
       setItemToDelete(null);
-      showToast(`Non-PII field "${item.field}" deleted from inventory.`);
+      showToast(`Not-personal-data field "${item.field}" deleted from inventory.`);
     } catch (err) {
       setError(errorMessage(err));
     } finally {
@@ -168,13 +169,13 @@ export default function Inventory() {
         </select>
         <select aria-label="Filter by data class" value={selectedClass} onChange={(e) => setSelectedClass(e.target.value)} className={selectCls}>
           <option value="All">All Data Classes</option>
-          {['Name', 'Email ID', 'Phone Number', 'Financial Data', 'Government ID', 'Non-PII'].map((c) => <option key={c}>{c}</option>)}
+          {[...DATA_CLASSES, NOT_PERSONAL].map((c) => <option key={c}>{c}</option>)}
         </select>
         <select aria-label="Filter by status" value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)} className={selectCls}>
           <option value="All">All Statuses</option>
           <option value="Matched">Matched</option>
           <option value="Evidence Gap">Evidence Gap</option>
-          <option value="Non-PII">Non-PII</option>
+          <option value={NOT_PERSONAL}>{NOT_PERSONAL}</option>
         </select>
       </div>
 
@@ -201,7 +202,7 @@ export default function Inventory() {
                 <tr>
                   <td colSpan={8} className="px-6 py-12 text-center">
                     <p className="text-sm font-semibold text-slate-700">No fields scanned yet</p>
-                    <p className="text-xs text-slate-500 mt-1">Scan the bundled SQLite database or upload a CSV to build the inventory.</p>
+                    <p className="text-xs text-slate-500 mt-1">Connect a PostgreSQL or MySQL database or upload a CSV to build the inventory.</p>
                     <button type="button" onClick={() => navigate('/scan')} className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-semibold cursor-pointer">
                       <Plus size={14} /> New Scan
                     </button>
@@ -209,7 +210,7 @@ export default function Inventory() {
                 </tr>
               )}
               {filtered.map((item) => {
-                const isNonPii = item.status === 'Non-PII';
+                const isNonPii = item.status === NOT_PERSONAL;
                 return (
                   <tr key={item.id} className="hover:bg-slate-50/70 transition-colors">
                     <td className="px-5 py-3.5">

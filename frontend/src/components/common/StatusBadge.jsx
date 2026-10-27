@@ -1,4 +1,5 @@
 import { AlertTriangle, CheckCircle2, MinusCircle } from 'lucide-react';
+import { NOT_PERSONAL } from '../../constants';
 
 export default function StatusBadge({ status }) {
   if (status === 'Matched') {
@@ -8,10 +9,10 @@ export default function StatusBadge({ status }) {
       </span>
     );
   }
-  if (status === 'Non-PII') {
+  if (status === NOT_PERSONAL) {
     return (
       <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-50 text-slate-600 border border-slate-200">
-        <MinusCircle size={12} /> Non-PII
+        <MinusCircle size={12} /> {NOT_PERSONAL}
       </span>
     );
   }

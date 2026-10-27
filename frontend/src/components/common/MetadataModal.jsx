@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X, ShieldCheck, Check, AlertCircle, Ban, BadgeCheck, Undo2 } from 'lucide-react';
 import { errorMessage } from '../../services/api';
+import { NOT_PERSONAL } from '../../constants';
 
 const DEFAULT_ATTRS = [
   { key: 'purpose', label: 'Declared Purpose' },
@@ -26,8 +27,8 @@ function EvidenceRow({ label, value }) {
 function ModalForm({ item, checklist, onClose, onSave }) {
   const attrs = checklist?.length ? checklist : DEFAULT_ATTRS;
   const required = item.required_attributes ?? item.missingAttributes ?? ['purpose', 'retention'];
-  const isNonPii = item.status === 'Non-PII';
-  const detectedPii = item.detected_class && item.detected_class !== 'Non-PII';
+  const isNonPii = item.status === NOT_PERSONAL;
+  const detectedPii = item.detected_class && item.detected_class !== NOT_PERSONAL;
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
@@ -118,7 +119,7 @@ function ModalForm({ item, checklist, onClose, onSave }) {
           {isNonPii ? (
             <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-600 flex gap-2">
               <AlertCircle size={16} className="text-slate-500 shrink-0" />
-              <p>This field is classified as Non-PII, so no purpose/retention evidence is required.</p>
+              <p>This field is classified as not personal data, so no purpose/retention evidence is required.</p>
             </div>
           ) : (
             <>
@@ -171,7 +172,7 @@ function ModalForm({ item, checklist, onClose, onSave }) {
                   className="px-3 py-2 border border-slate-200 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-50 flex items-center gap-1 cursor-pointer disabled:opacity-60"
                   title="Reviewer decision: this field is not personal data (false positive)"
                 >
-                  <Ban size={14} /> Mark Non-PII
+                  <Ban size={14} /> Mark Not Personal Data
                 </button>
                 {item.review_decision !== 'confirmed' && (
                   <button
@@ -215,12 +216,7 @@ function ModalForm({ item, checklist, onClose, onSave }) {
   );
 }
 
-/**
- * Props:
- *  item      - inventory record (or gap merged with its record)
- *  checklist - checklist attributes from /config/checklist
- *  onSave    - async (patch) => void ; patch contains metadata and/or review_decision
- */
+
 export default function MetadataModal({ isOpen, onClose, item, checklist, onSave }) {
   if (!isOpen || !item) return null;
   return (

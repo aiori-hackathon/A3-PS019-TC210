@@ -71,7 +71,7 @@ export default function EvidenceGaps() {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
-          { s: 'Critical', icon: ShieldAlert, cls: 'bg-red-50 text-red-600', hint: 'Financial / Government ID' },
+          { s: 'Critical', icon: ShieldAlert, cls: 'bg-red-50 text-red-600', hint: 'Financial / Government identifiers' },
           { s: 'High', icon: AlertTriangle, cls: 'bg-amber-50 text-amber-600', hint: 'Purpose or retention missing' },
           { s: 'Medium', icon: Info, cls: 'bg-blue-50 text-blue-600', hint: 'Only optional attributes missing' },
         ].map(({ s, icon: Icon, cls, hint }) => (

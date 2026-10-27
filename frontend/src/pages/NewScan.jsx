@@ -2,18 +2,27 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api, errorMessage } from '../services/api';
 import {
-  Database, Play, CheckCircle2, Loader2, ArrowRight, FileSpreadsheet, Upload, Link2, X, Eye, EyeOff, Info, Check, XCircle,
+  Database, Play, CheckCircle2, Loader2, ArrowRight, FileSpreadsheet, Upload, Link2, X, Eye, EyeOff, Info, Check, XCircle, HardDrive,
 } from 'lucide-react';
 import ErrorBanner from '../components/common/ErrorBanner';
 import StatusBadge from '../components/common/StatusBadge';
+import { NOT_PERSONAL } from '../constants';
 
 const SOURCE_MODES = [
-  { id: 'sql', title: 'Connect SQL Database', subtitle: 'Bundled SQLite demo DB, or PostgreSQL / MySQL', icon: Database },
+  { id: 'sql', title: 'Connect SQL Database', subtitle: 'PostgreSQL or MySQL', icon: Database },
+  { id: 'sqlite', title: 'Upload SQLite Database', subtitle: '.db / .sqlite file, e.g. sample.db', icon: HardDrive },
   { id: 'csv', title: 'Upload CSV File', subtitle: 'Scan a structured .csv export', icon: FileSpreadsheet },
 ];
 
+// File-upload source modes: accepted extensions and wording.
+const FILE_MODES = {
+  csv: { title: 'Upload CSV File', exts: ['.csv'], label: 'CSV file', icon: FileSpreadsheet, tip: <>Tip: try a file from <code>backend/data/synthetic/</code></>,
+    help: 'Values are sampled per column; raw values are never stored, only masked examples.' },
+  sqlite: { title: 'Upload SQLite Database', exts: ['.db', '.sqlite', '.sqlite3'], label: 'SQLite database', icon: HardDrive, tip: <>Tip: try <code>backend/data/sample.db</code></>,
+    help: 'The file is opened read-only. Every table is scanned; raw values are never stored, only masked examples.' },
+};
+
 const DIALECT_DEFAULTS = {
-  SQLite: { port: '', dbName: 'data/sample.db', schema: '' },
   PostgreSQL: { port: '5432', dbName: '', schema: 'public' },
   MySQL: { port: '3306', dbName: '', schema: '' },
 };
@@ -30,7 +39,7 @@ export default function NewScan() {
   const [csvFile, setCsvFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  const [sqlConfig, setSqlConfig] = useState({ dialect: 'SQLite', host: '', username: '', password: '', ...DIALECT_DEFAULTS.SQLite });
+  const [sqlConfig, setSqlConfig] = useState({ dialect: 'PostgreSQL', host: '', username: '', password: '', ...DIALECT_DEFAULTS.PostgreSQL });
   const [showPassword, setShowPassword] = useState(false);
   const [isTestingConn, setIsTestingConn] = useState(false);
   const [conn, setConn] = useState(null); // { success, message, tables }
@@ -55,10 +64,13 @@ export default function NewScan() {
     return () => clearInterval(pollRef.current);
   }, []);
 
+  const fileMode = FILE_MODES[sourceMode];
+
   const pickFile = (file) => {
-    if (!file) return;
-    if (!file.name.toLowerCase().endsWith('.csv')) { setError('Only .csv files are accepted.'); return; }
-    if (file.size > 50 * 1024 * 1024) { setError('CSV exceeds the 50 MB limit.'); return; }
+    if (!file || !fileMode) return;
+    const lower = file.name.toLowerCase();
+    if (!fileMode.exts.some((ext) => lower.endsWith(ext))) { setError(`Only ${fileMode.exts.join(', ')} files are accepted.`); return; }
+    if (file.size > 50 * 1024 * 1024) { setError(`The ${fileMode.label} exceeds the 50 MB limit.`); return; }
     setError(null);
     setCsvFile(file);
   };
@@ -83,7 +95,7 @@ export default function NewScan() {
     }
   };
 
-  const canLaunch = sourceMode === 'csv' ? !!csvFile : !!conn?.success;
+  const canLaunch = sourceMode === 'sql' ? !!conn?.success : !!csvFile;
   const finished = summary !== null;
 
   const handleStartScan = async () => {
@@ -100,6 +112,10 @@ export default function NewScan() {
         const upload = await api.uploadCsv(csvFile);
         sourceRef = upload.uploadId;
         setScanLogs([{ time: new Date().toLocaleTimeString(), text: `Uploaded ${upload.filename}: ${upload.rowCount} rows, ${upload.columns.length} columns` }]);
+      } else if (sourceMode === 'sqlite') {
+        const upload = await api.uploadSqlite(csvFile);
+        sourceRef = upload.uploadId;
+        setScanLogs([{ time: new Date().toLocaleTimeString(), text: `Uploaded ${upload.filename}: ${upload.tables.length} table(s): ${upload.tables.join(', ')}` }]);
       } else {
         sourceRef = sqlConfig;
       }
@@ -109,7 +125,7 @@ export default function NewScan() {
         try {
           const s = await api.getScan(scanId);
           setProgress(s.progress ?? 0);
-          setScanLogs((prev) => (sourceMode === 'csv' ? [prev[0], ...s.logs].filter(Boolean) : s.logs));
+          setScanLogs((prev) => (sourceMode !== 'sql' ? [prev[0], ...s.logs].filter(Boolean) : s.logs));
           if (s.status === 'completed' || s.status === 'failed') {
             clearInterval(pollRef.current);
             setIsScanning(false);
@@ -136,13 +152,13 @@ export default function NewScan() {
     setSummary(null); setResults([]); setProgress(0); setScanLogs([]); setCsvFile(null); setConn(null); setError(null);
   };
 
-  const piiResults = results.filter((r) => r.status !== 'Non-PII');
+  const piiResults = results.filter((r) => r.status !== NOT_PERSONAL);
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-12">
       <div className="pb-3 border-b border-slate-200">
         <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Personal-Data Discovery Scanner</h1>
-        <p className="text-slate-500 text-sm mt-0.5">Scan a SQL database or CSV file for candidate personal-data fields across the 5 data classes.</p>
+        <p className="text-slate-500 text-sm mt-0.5">Scan a SQL database, an uploaded SQLite file or a CSV file for candidate personal-data fields across the 5 data classes.</p>
       </div>
 
       <ErrorBanner message={error} />
@@ -152,13 +168,13 @@ export default function NewScan() {
           {/* Step 1 */}
           <div className="bg-white rounded-xl border border-slate-200 card-shadow p-5">
             <h2 className="text-base font-bold text-slate-900 mb-1">1. Select Data Source Type</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
               {SOURCE_MODES.map((mode) => {
                 const Icon = mode.icon;
                 const active = sourceMode === mode.id;
                 return (
                   <button key={mode.id} type="button" aria-pressed={active} disabled={isScanning}
-                    onClick={() => { setSourceMode(mode.id); setConn(null); }}
+                    onClick={() => { if (mode.id !== sourceMode) setCsvFile(null); setSourceMode(mode.id); setConn(null); setError(null); }}
                     className={`p-4 rounded-xl border text-left flex items-start gap-3 transition-all cursor-pointer ${active ? 'border-blue-500 bg-blue-50/50 ring-1 ring-blue-500/20' : 'border-slate-200 hover:border-slate-300 bg-white'}`}>
                     <div className={`p-2 rounded-lg mt-0.5 ${active ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'}`}><Icon size={18} /></div>
                     <div>
@@ -174,14 +190,16 @@ export default function NewScan() {
 
           {/* Step 2 */}
           <div className="bg-white rounded-xl border border-slate-200 card-shadow p-5">
-            {sourceMode === 'csv' ? (
+            {fileMode ? (
               <>
-                <h2 className="text-base font-bold text-slate-900 mb-1">2. Upload CSV File</h2>
-                <p className="text-xs text-slate-500 mb-4">Only <code className="bg-slate-100 px-1 rounded">.csv</code> files, max 50 MB. Values are sampled per column; raw values are never stored, only masked examples.</p>
+                <h2 className="text-base font-bold text-slate-900 mb-1">2. {fileMode.title}</h2>
+                <p className="text-xs text-slate-500 mb-4">
+                  Only {fileMode.exts.map((ext, i) => <span key={ext}>{i > 0 && ', '}<code className="bg-slate-100 px-1 rounded">{ext}</code></span>)} files, max 50 MB. {fileMode.help}
+                </p>
                 <div
                   role="button"
                   tabIndex={0}
-                  aria-label="Choose a CSV file"
+                  aria-label={`Choose a ${fileMode.label}`}
                   onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && !csvFile) fileInputRef.current?.click(); }}
                   onDrop={(e) => { e.preventDefault(); setIsDragging(false); pickFile(e.dataTransfer.files?.[0]); }}
                   onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
@@ -189,10 +207,10 @@ export default function NewScan() {
                   onClick={() => !csvFile && fileInputRef.current?.click()}
                   className={`relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed py-12 transition-all cursor-pointer ${isDragging ? 'border-blue-500 bg-blue-50' : csvFile ? 'border-emerald-400 bg-emerald-50/50 cursor-default' : 'border-slate-300 hover:border-blue-400 hover:bg-blue-50/30'}`}
                 >
-                  <input ref={fileInputRef} type="file" accept=".csv" className="hidden" onChange={(e) => { pickFile(e.target.files?.[0]); e.target.value = ''; }} />
+                  <input ref={fileInputRef} type="file" accept={fileMode.exts.join(',')} className="hidden" onChange={(e) => { pickFile(e.target.files?.[0]); e.target.value = ''; }} />
                   {csvFile ? (
                     <>
-                      <FileSpreadsheet size={28} className="text-emerald-600" />
+                      <fileMode.icon size={28} className="text-emerald-600" />
                       <div className="text-center">
                         <p className="text-sm font-bold text-slate-900">{csvFile.name}</p>
                         <p className="text-xs text-slate-500 mt-0.5">{(csvFile.size / 1024).toFixed(1)} KB · Ready to scan</p>
@@ -205,8 +223,8 @@ export default function NewScan() {
                   ) : (
                     <>
                       <Upload size={28} className="text-blue-600" />
-                      <p className="text-sm font-semibold text-slate-700">Drop your CSV here, or <span className="text-blue-600 underline">browse</span></p>
-                      <p className="text-xs text-slate-400">Tip: try <code>backend/data/large_test_set.csv</code></p>
+                      <p className="text-sm font-semibold text-slate-700">Drop your {fileMode.label} here, or <span className="text-blue-600 underline">browse</span></p>
+                      <p className="text-xs text-slate-400">{fileMode.tip}</p>
                     </>
                   )}
                 </div>
@@ -329,7 +347,7 @@ export default function NewScan() {
               <div className="text-slate-500">// PriVista discovery engine</div>
               {scanLogs.length === 0 ? (
                 <div className="text-slate-500 italic">
-                  {canLaunch ? 'Source ready. Click "Launch Scan".' : sourceMode === 'csv' ? 'Choose a CSV file to enable scanning.' : 'Test the SQL connection to enable scanning.'}
+                  {canLaunch ? 'Source ready. Click "Launch Scan".' : fileMode ? `Choose a ${fileMode.label} to enable scanning.` : 'Test the SQL connection to enable scanning.'}
                 </div>
               ) : scanLogs.map((log, i) => (
                 <div key={i} className="leading-relaxed"><span className="text-blue-400">[{log.time}]</span> {log.text}</div>

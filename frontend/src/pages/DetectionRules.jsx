@@ -2,16 +2,16 @@ import { useState, useEffect, useCallback } from 'react';
 import { ShieldCheck, Search, Plus, X, Play, Zap, Trash2, Lock } from 'lucide-react';
 import { api, errorMessage } from '../services/api';
 import ErrorBanner from '../components/common/ErrorBanner';
+import { DATA_CLASSES as CLASSES } from '../constants';
 
-const CLASSES = ['Name', 'Email ID', 'Phone Number', 'Financial Data', 'Government ID'];
-const EMPTY_RULE = { name: '', identifier: '', category: 'Government ID', pattern: '', confidenceThreshold: 60, context: '', columnKeywords: '' };
+const EMPTY_RULE = { name: '', identifier: '', category: 'Government identifiers', pattern: '', confidenceThreshold: 60, context: '', columnKeywords: '' };
 const inputCls = 'w-full text-sm bg-white border border-slate-200 rounded-lg p-2.5 text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-500';
 
 export default function DetectionRules() {
   const [rules, setRules] = useState([]);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
-  const [testText, setTestText] = useState('Customer KYC record: Name: Rohan Sharma, Aadhaar: 3412 8921 5432, PAN: ABCDE1234F, Phone: +919876543210, Card: 4111 1111 1111 1111, Email: rohan.sharma@example.com');
+  const [testText, setTestText] = useState('Customer KYC record: Name: Rohan Sharma, Aadhaar: 3412 8921 5431, PAN: ABCPE1234F, Phone: +919876543210, Card: 4111 1111 1111 1111, Email: rohan.sharma@example.com, UPI: rohan.sharma@okaxis, IFSC: SBIN0001234, Voter ID: ABC1234567, Licence: MH14 20110062821, Location: 12.971599, 77.594566');
   const [testContext, setTestContext] = useState('');
   const [testResults, setTestResults] = useState(null);
   const [testing, setTesting] = useState(false);

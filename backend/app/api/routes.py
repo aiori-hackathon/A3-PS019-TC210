@@ -24,15 +24,16 @@ from app.core.config import (
     UPLOAD_DIR,
 )
 from app.models.schemas import EvaluationRequest, RuleTestRequest, ScanStartRequest, SQLConnection, SQLScanRequest
-from app.services import detector, registry, store
+from app.services import detector, registry, storage, store
 from app.services.evaluation import compute_metrics, get_evaluation, normalise_label
 from app.services.report_service import generate_pdf_report, get_report_data, list_reports
 from app.services.scanner import read_csv, scan_csv, scan_sql
 
 router = APIRouter()
 
-CLASS_COLORS = {"Name": "#2563eb", "Email ID": "#0ea5e9", "Phone Number": "#10b981",
-                "Financial Data": "#f59e0b", "Government ID": "#8b5cf6"}
+CLASS_COLORS = {"Personal identity": "#2563eb", "Contact information": "#0ea5e9",
+                "Government identifiers": "#8b5cf6", "Financial information": "#f59e0b",
+                "Location / address": "#10b981"}
 
 
 
@@ -123,14 +124,18 @@ async def upload_csv(file: UploadFile = File(...)):
     upload_id = str(uuid.uuid4())
     path = UPLOAD_DIR / f"{upload_id}.csv"
     size = 0
-    with open(path, "wb") as f:
-        while chunk := await file.read(1024 * 1024):
-            size += len(chunk)
-            if size > MAX_UPLOAD_BYTES:
-                f.close()
-                path.unlink(missing_ok=True)
-                raise HTTPException(413, "CSV exceeds the 50 MB limit")
-            f.write(chunk)
+    try:
+        with open(path, "wb") as f:
+            while chunk := await file.read(1024 * 1024):
+                size += len(chunk)
+                if size > MAX_UPLOAD_BYTES:
+                    f.close()
+                    path.unlink(missing_ok=True)
+                    raise HTTPException(413, "CSV exceeds the 50 MB limit")
+                f.write(chunk)
+    except OSError as e:
+        print(f"Error: could not write upload to {UPLOAD_DIR}: {e}")
+        raise HTTPException(500, f"Server could not write the uploaded file: {e}")
     try:
         df = read_csv(path, nrows=None)
     except Exception as e:
@@ -139,10 +144,78 @@ async def upload_csv(file: UploadFile = File(...)):
     if df.shape[1] == 0:
         path.unlink(missing_ok=True)
         raise HTTPException(400, "CSV has no columns")
-    store.uploads[upload_id] = {"path": str(path), "filename": name}
+    try:
+        storage_key = storage.save_upload(upload_id, path)
+    except Exception as e:
+        path.unlink(missing_ok=True)
+        raise HTTPException(502, f"Could not save the file to cloud storage: {e}")
+    store.uploads[upload_id] = {"path": str(path), "filename": name, "storage_key": storage_key}
     store.save_store()
     return {"scanId": upload_id, "uploadId": upload_id, "filename": name,
             "rowCount": int(len(df)), "columns": [str(c) for c in df.columns]}
+
+
+SQLITE_EXTENSIONS = (".db", ".sqlite", ".sqlite3")
+SQLITE_MAGIC = b"SQLite format 3\x00"
+
+
+def _sqlite_readonly_url(path: Path) -> str:
+    """SQLAlchemy URL that opens the file read-only, so scanning can never modify an uploaded database."""
+    return f"sqlite:///file:{path.resolve().as_posix()}?mode=ro&uri=true"
+
+
+def _sqlite_tables(path: Path) -> List[str]:
+    engine = create_engine(_sqlite_readonly_url(path))
+    try:
+        return inspect(engine).get_table_names()
+    finally:
+        engine.dispose()
+
+
+@router.post("/scan/upload-sqlite")
+async def upload_sqlite(file: UploadFile = File(...)):
+    """Upload a SQLite database file (.db / .sqlite / .sqlite3) to scan it like a SQL source."""
+    name = Path(file.filename or "upload.db").name  # strip any directory components
+    ext = Path(name).suffix.lower()
+    if ext not in SQLITE_EXTENSIONS:
+        raise HTTPException(400, "Only .db, .sqlite or .sqlite3 files are accepted")
+    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    upload_id = str(uuid.uuid4())
+    path = UPLOAD_DIR / f"{upload_id}{ext}"
+    size = 0
+    try:
+        with open(path, "wb") as f:
+            while chunk := await file.read(1024 * 1024):
+                size += len(chunk)
+                if size > MAX_UPLOAD_BYTES:
+                    f.close()
+                    path.unlink(missing_ok=True)
+                    raise HTTPException(413, "Database file exceeds the 50 MB limit")
+                f.write(chunk)
+    except OSError as e:
+        print(f"Error: could not write upload to {UPLOAD_DIR}: {e}")
+        raise HTTPException(500, f"Server could not write the uploaded file: {e}")
+    with open(path, "rb") as f:
+        header = f.read(len(SQLITE_MAGIC))
+    if header != SQLITE_MAGIC:  # checked after closing, so the file can be deleted on Windows
+        path.unlink(missing_ok=True)
+        raise HTTPException(400, "Not a SQLite database (file header does not match)")
+    try:
+        tables = _sqlite_tables(path)
+    except Exception as e:
+        path.unlink(missing_ok=True)
+        raise HTTPException(400, f"Could not open SQLite database: {e}")
+    if not tables:
+        path.unlink(missing_ok=True)
+        raise HTTPException(400, "SQLite database has no tables")
+    try:
+        storage_key = storage.save_upload(upload_id, path, ext, "application/vnd.sqlite3")
+    except Exception as e:
+        path.unlink(missing_ok=True)
+        raise HTTPException(502, f"Could not save the file to cloud storage: {e}")
+    store.uploads[upload_id] = {"path": str(path), "filename": name, "storage_key": storage_key, "kind": "sqlite"}
+    store.save_store()
+    return {"uploadId": upload_id, "filename": name, "sizeBytes": size, "tables": tables}
 
 
 @router.post("/scan/test-connection")
@@ -180,19 +253,37 @@ def _run_scan_job(scan_id: str, req: ScanStartRequest):
         log(f"Active detection rules ({len(active)}): {', '.join(active)}", 10)
         if req.sourceType == "csv":
             up = store.uploads.get(str(req.sourceRef))
-            if not up or not Path(up["path"]).exists():
+            # After a redeploy the local copy is gone; fetch it back from Supabase Storage.
+            # Rebuild the path from UPLOAD_DIR because the stored absolute path may be from another host.
+            if not up:
+                raise ValueError("Uploaded file not found; please upload the CSV again")
+            local = UPLOAD_DIR / f"{req.sourceRef}.csv" if up.get("storage_key") else Path(up["path"])
+            if not storage.ensure_local(local, up.get("storage_key")):
                 raise ValueError("Uploaded file not found; please upload the CSV again")
             source_label = up["filename"]
             log(f"Reading CSV {source_label}", 15)
-            results = scan_csv(up["path"], source_label, required, log, scan_id)
+            results = scan_csv(local, source_label, required, log, scan_id)
         elif req.sourceType == "sql":
             cfg = SQLConnection(**(req.sourceRef or {}))
             url, label, schema, _ = _sql_target(cfg)
             source_label = label
             log(f"Connecting to {cfg.dialect} database {label}", 15)
             results = scan_sql(url, label, schema, required, log, scan_id)
+        elif req.sourceType == "sqlite":
+            up = store.uploads.get(str(req.sourceRef))
+            if not up or up.get("kind") != "sqlite":
+                raise ValueError("Uploaded database not found; please upload the SQLite file again")
+            ext = Path(up["filename"]).suffix.lower()
+            local = UPLOAD_DIR / f"{req.sourceRef}{ext}" if up.get("storage_key") else Path(up["path"])
+            if not storage.ensure_local(local, up.get("storage_key")):
+                raise ValueError("Uploaded database not found; please upload the SQLite file again")
+            # Label = file name without extension, so sample.db -> sources "sample.<table>",
+            # which matches the declarations in config/metadata_registry.yaml.
+            source_label, source_type = Path(up["filename"]).stem, "sql"
+            log(f"Opening uploaded SQLite database {up['filename']} (read-only)", 15)
+            results = scan_sql(_sqlite_readonly_url(local), source_label, None, required, log, scan_id)
         else:
-            raise ValueError("sourceType must be 'csv' or 'sql'")
+            raise ValueError("sourceType must be 'csv', 'sql' or 'sqlite'")
 
         log("Linking fields to declared metadata and checking evidence checklist", 92)
         summary = _store_results(results)
@@ -314,10 +405,10 @@ def delete_inventory(item_id: str):
     if not item:
         raise HTTPException(404, "Inventory item not found")
     if item.get("status") != NON_PII:
-        raise HTTPException(403, "Only Non-PII records can be deleted. Mark the field as Non-PII after review first.")
+        raise HTTPException(403, "Only 'Not personal data' records can be deleted. Mark the field as not personal data after review first.")
     del store.inventory[item_id]
     store.save_store()
-    return {"success": True, "deleted_id": item_id, "message": f"Non-PII record '{item['field']}' deleted"}
+    return {"success": True, "deleted_id": item_id, "message": f"Not-personal-data record '{item['field']}' deleted"}
 
 
 @router.post("/inventory/reset")

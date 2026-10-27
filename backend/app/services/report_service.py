@@ -10,7 +10,7 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.pdfgen import canvas
 from reportlab.platypus import KeepTogether, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
-from app.core.config import CHECKLIST_ATTRIBUTES, DATA_CLASSES
+from app.core.config import CHECKLIST_ATTRIBUTES, DATA_CLASSES, NON_PII
 from app.services import store
 from app.services.detector import list_rules
 
@@ -252,9 +252,9 @@ def generate_pdf_report(report: Dict[str, Any]) -> bytes:
 
     inv = report.get("inventory")
     if inv is not None:
-        pii = [i for i in inv if i.get("status") != "Non-PII"]
+        pii = [i for i in inv if i.get("status") != NON_PII]
         heading("Personal-Data Inventory and Metadata Mapping")
-        story.append(Paragraph(f"{len(pii)} candidate personal-data field(s); {len(inv) - len(pii)} scanned field(s) not flagged or rejected as Non-PII.", body))
+        story.append(Paragraph(f"{len(pii)} candidate personal-data field(s); {len(inv) - len(pii)} scanned field(s) not flagged or rejected as not personal data.", body))
         story.append(Spacer(1, 6))
         rows = [["Source.Field", "Class / Rule", "Evidence", "Purpose", "Retention", "Owner", "Status"]]
         for i in pii:

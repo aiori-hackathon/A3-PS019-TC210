@@ -1,20 +1,40 @@
+import os
+import tempfile
 import yaml
 from pathlib import Path
 from typing import Dict, Any, List
 
-# All paths are absolute so the app works regardless of the current working directory.
+
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 CONFIG_DIR = BASE_DIR / "config"
 DATA_DIR = BASE_DIR / "data"
-UPLOAD_DIR = DATA_DIR / "uploads"
+
+
+def _writable_upload_dir() -> Path:
+
+    candidates = [os.getenv("PRIVISTA_UPLOAD_DIR"), str(DATA_DIR / "uploads"),
+                  os.path.join(tempfile.gettempdir(), "privista_uploads")]
+    for c in filter(None, candidates):
+        p = Path(c)
+        try:
+            p.mkdir(parents=True, exist_ok=True)
+            probe = p / ".write_test"
+            probe.write_bytes(b"")
+            probe.unlink()
+            return p
+        except OSError:
+            continue
+    return Path(candidates[-1])
+
+
+UPLOAD_DIR = _writable_upload_dir()
 
 DATA_CLASSES_FILE = CONFIG_DIR / "data_classes.yaml"
 RULES_FILE = CONFIG_DIR / "rules.yaml"
 CHECKLIST_FILE = CONFIG_DIR / "evidence_checklist.yaml"
 REGISTRY_FILE = CONFIG_DIR / "metadata_registry.yaml"
 
-# Evaluation answer key: dataset,column,true_class. Every dataset it names is a CSV in DATA_DIR
-# (currently large_test_set.csv and the two synthetic_kyc_payment_test_data files).
+
 COLUMN_GROUND_TRUTH = DATA_DIR / "ground_truth.csv"
 SAMPLE_DB = DATA_DIR / "sample.db"
 
@@ -24,7 +44,8 @@ DECLARED_METADATA_FILE = DATA_DIR / "declared_metadata.json"
 
 MAX_UPLOAD_BYTES = 50 * 1024 * 1024  # 50 MB
 
-NON_PII = "Non-PII"
+
+NON_PII = "Not personal data"
 
 
 def load_yaml(filepath: Path) -> Dict[str, Any]:
@@ -39,7 +60,6 @@ RULES_CONFIG = load_yaml(RULES_FILE)
 EVIDENCE_CHECKLIST_CONFIG = load_yaml(CHECKLIST_FILE)
 REGISTRY_CONFIG = load_yaml(REGISTRY_FILE)
 
-# The 5 predefined data classes, in display order.
 DATA_CLASSES: List[str] = list(DATA_CLASSES_CONFIG["data_classes"].keys())
 
 CHECKLIST_ATTRIBUTES: List[Dict[str, Any]] = EVIDENCE_CHECKLIST_CONFIG.get("attributes", [])

@@ -1,38 +1,506 @@
 
+
 declarations:
-  - source: sample.customers
-    field: full_name
-    purpose: Identity Verification (KYC)
-    retention: 7 Years after account closure
-    owner: Compliance & Risk
-  - source: sample.customers
-    field: email
-    purpose: Account Notifications
-    retention: 2 Years after account closure
-    owner: Customer Success
-  - source: sample.customers
-    field: phone
-    purpose: Customer Support
-    retention: 2 Years after account closure
-  - source: sample.customers
-    field: aadhaar
-    purpose: Identity Verification (KYC)
-    retention: 7 Years after account closure
-    owner: Compliance & Risk
-  - source: sample.customers
-    field: pan
-    purpose: Tax Reporting
-    owner: Finance
-  - source: sample.payments
-    field: credit_card
-    purpose: Billing Settlement
-    retention: 3 Years
-    owner: Finance
-  - source: large_test_set.csv
-    field: customer_name
-    purpose: Customer Onboarding
-    retention: 5 Years
-  - source: large_test_set.csv
-    field: email
-    purpose: Account Notifications
-    retention: 2 Years
+- source: customers_kyc.csv
+  field: full_name
+  purpose: Identity verification (KYC)
+  retention: 8 years after account closure
+  owner: Compliance & Risk
+- source: customers_kyc.csv
+  field: date_of_birth
+  purpose: Identity verification (KYC)
+  retention: 8 years after account closure
+  owner: Compliance & Risk
+- source: customers_kyc.csv
+  field: gender
+  purpose: Identity verification (KYC)
+  retention: 8 years after account closure
+  owner: Compliance & Risk
+- source: customers_kyc.csv
+  field: age
+  purpose: Identity verification (KYC)
+  retention: 8 years after account closure
+  owner: Compliance & Risk
+- source: customers_kyc.csv
+  field: email
+  purpose: Identity verification (KYC)
+  retention: 8 years after account closure
+  owner: Compliance & Risk
+- source: customers_kyc.csv
+  field: alternate_email
+  purpose: Identity verification (KYC)
+  retention: 8 years after account closure
+  owner: Compliance & Risk
+- source: customers_kyc.csv
+  field: mobile
+  purpose: Identity verification (KYC)
+  retention: 8 years after account closure
+  owner: Compliance & Risk
+- source: customers_kyc.csv
+  field: aadhaar_number
+  purpose: Identity verification (KYC)
+  retention: 8 years after account closure
+  owner: Compliance & Risk
+- source: customers_kyc.csv
+  field: pan_number
+  purpose: Identity verification (KYC)
+  retention: 8 years after account closure
+  owner: Compliance & Risk
+- source: customers_kyc.csv
+  field: voter_id
+  purpose: Identity verification (KYC)
+  retention: 8 years after account closure
+  owner: Compliance & Risk
+- source: customers_kyc.csv
+  field: driving_licence
+  purpose: Identity verification (KYC)
+  owner: Compliance & Risk
+- source: customers_kyc.csv
+  field: residential_address
+  purpose: Identity verification (KYC)
+  retention: 8 years after account closure
+  owner: Compliance & Risk
+- source: customers_kyc.csv
+  field: permanent_address
+  retention: 8 years after account closure
+  owner: Compliance & Risk
+- source: customers_kyc.csv
+  field: pincode
+  purpose: Identity verification (KYC)
+  retention: 8 years after account closure
+  owner: Compliance & Risk
+- source: payments.csv
+  field: payer_name
+  purpose: Payment processing and settlement
+  retention: 10 years
+  owner: Finance
+- source: payments.csv
+  field: payer_email
+  purpose: Payment processing and settlement
+  retention: 10 years
+  owner: Finance
+- source: payments.csv
+  field: payer_phone
+  purpose: Payment processing and settlement
+  retention: 10 years
+  owner: Finance
+- source: payments.csv
+  field: payer_pan
+  purpose: Payment processing and settlement
+  retention: 10 years
+  owner: Finance
+- source: payments.csv
+  field: card_number
+  purpose: Payment processing and settlement
+  retention: 10 years
+  owner: Finance
+- source: payments.csv
+  field: rupay_card
+  purpose: Payment processing and settlement
+  retention: 10 years
+  owner: Finance
+- source: payments.csv
+  field: masked_card
+  purpose: Payment processing and settlement
+  retention: 10 years
+  owner: Finance
+- source: payments.csv
+  field: bank_account_no
+  purpose: Payment processing and settlement
+  retention: 10 years
+  owner: Finance
+- source: payments.csv
+  field: ifsc_code
+  purpose: Payment processing and settlement
+  retention: 10 years
+  owner: Finance
+- source: payments.csv
+  field: beneficiary_account
+  purpose: Payment processing and settlement
+  retention: 10 years
+  owner: Finance
+- source: payments.csv
+  field: beneficiary_ifsc
+  purpose: Payment processing and settlement
+  retention: 10 years
+  owner: Finance
+- source: payments.csv
+  field: upi_id
+  purpose: Payment processing and settlement
+  owner: Finance
+- source: delivery_orders.csv
+  field: recipient
+  purpose: Order delivery
+  retention: 2 years
+  owner: Logistics
+- source: delivery_orders.csv
+  field: recipient_email
+  purpose: Order delivery
+  retention: 2 years
+  owner: Logistics
+- source: delivery_orders.csv
+  field: contact_no
+  purpose: Order delivery
+  retention: 2 years
+  owner: Logistics
+- source: delivery_orders.csv
+  field: alt_contact
+  retention: 2 years
+  owner: Logistics
+- source: delivery_orders.csv
+  field: shipping_address
+  purpose: Order delivery
+  retention: 2 years
+  owner: Logistics
+- source: delivery_orders.csv
+  field: pickup_address
+  purpose: Order delivery
+  retention: 2 years
+  owner: Logistics
+- source: delivery_orders.csv
+  field: delivery_pincode
+  purpose: Order delivery
+  retention: 2 years
+  owner: Logistics
+- source: delivery_orders.csv
+  field: pickup_lat_long
+  purpose: Order delivery
+  owner: Logistics
+- source: delivery_orders.csv
+  field: cod_upi
+  purpose: Order delivery
+  retention: 2 years
+  owner: Logistics
+- source: hr_employees.csv
+  field: employee_name
+  purpose: Employment and payroll
+  retention: 7 years after exit
+  owner: Human Resources
+- source: hr_employees.csv
+  field: birth_date
+  purpose: Employment and payroll
+  owner: Human Resources
+- source: hr_employees.csv
+  field: sex
+  purpose: Employment and payroll
+  retention: 7 years after exit
+  owner: Human Resources
+- source: hr_employees.csv
+  field: age_years
+  purpose: Employment and payroll
+  retention: 7 years after exit
+  owner: Human Resources
+- source: hr_employees.csv
+  field: work_email
+  purpose: Employment and payroll
+  retention: 7 years after exit
+  owner: Human Resources
+- source: hr_employees.csv
+  field: personal_phone
+  purpose: Employment and payroll
+  retention: 7 years after exit
+  owner: Human Resources
+- source: hr_employees.csv
+  field: emergency_contact_phone
+  purpose: Employment and payroll
+  retention: 7 years after exit
+  owner: Human Resources
+- source: hr_employees.csv
+  field: pan
+  purpose: Employment and payroll
+  retention: 7 years after exit
+  owner: Human Resources
+- source: hr_employees.csv
+  field: aadhaar
+  purpose: Employment and payroll
+  retention: 7 years after exit
+  owner: Human Resources
+- source: hr_employees.csv
+  field: passport
+  purpose: Employment and payroll
+  retention: 7 years after exit
+  owner: Human Resources
+- source: hr_employees.csv
+  field: driving_licence_no
+  purpose: Employment and payroll
+  retention: 7 years after exit
+  owner: Human Resources
+- source: hr_employees.csv
+  field: voter_card
+  purpose: Employment and payroll
+  retention: 7 years after exit
+  owner: Human Resources
+- source: hr_employees.csv
+  field: salary_account
+  purpose: Employment and payroll
+  retention: 7 years after exit
+  owner: Human Resources
+- source: hr_employees.csv
+  field: salary_ifsc
+  purpose: Employment and payroll
+  retention: 7 years after exit
+  owner: Human Resources
+- source: hr_employees.csv
+  field: home_address
+  purpose: Employment and payroll
+  retention: 7 years after exit
+  owner: Human Resources
+- source: hr_employees.csv
+  field: home_pin
+  retention: 7 years after exit
+  owner: Human Resources
+- source: patients.csv
+  field: patient_name
+  purpose: Patient registration
+  retention: 5 years after last visit
+  owner: Hospital Administration
+- source: patients.csv
+  field: patient_dob
+  purpose: Patient registration
+  retention: 5 years after last visit
+  owner: Hospital Administration
+- source: patients.csv
+  field: patient_gender
+  purpose: Patient registration
+  retention: 5 years after last visit
+  owner: Hospital Administration
+- source: patients.csv
+  field: patient_age
+  purpose: Patient registration
+  retention: 5 years after last visit
+  owner: Hospital Administration
+- source: patients.csv
+  field: contact_email
+  purpose: Patient registration
+  retention: 5 years after last visit
+  owner: Hospital Administration
+- source: patients.csv
+  field: contact_phone
+  purpose: Patient registration
+  retention: 5 years after last visit
+  owner: Hospital Administration
+- source: patients.csv
+  field: guardian_phone
+  purpose: Patient registration
+  retention: 5 years after last visit
+  owner: Hospital Administration
+- source: patients.csv
+  field: patient_aadhaar
+  purpose: Patient registration
+  retention: 5 years after last visit
+  owner: Hospital Administration
+- source: patients.csv
+  field: address_line
+  purpose: Patient registration
+  retention: 5 years after last visit
+  owner: Hospital Administration
+- source: patients.csv
+  field: pin_code
+  purpose: Patient registration
+  retention: 5 years after last visit
+  owner: Hospital Administration
+- source: patients.csv
+  field: gps_location
+  purpose: Patient registration
+  owner: Hospital Administration
+- source: sample.customers
+  field: full_name
+  purpose: Identity verification (KYC)
+  retention: 8 years after account closure
+  owner: Compliance & Risk
+- source: sample.customers
+  field: dob
+  purpose: Identity verification (KYC)
+  retention: 8 years after account closure
+  owner: Compliance & Risk
+- source: sample.customers
+  field: gender
+  purpose: Identity verification (KYC)
+  retention: 8 years after account closure
+  owner: Compliance & Risk
+- source: sample.customers
+  field: email
+  purpose: Identity verification (KYC)
+  retention: 8 years after account closure
+  owner: Compliance & Risk
+- source: sample.customers
+  field: phone
+  purpose: Identity verification (KYC)
+  retention: 8 years after account closure
+  owner: Compliance & Risk
+- source: sample.customers
+  field: aadhaar
+  purpose: Identity verification (KYC)
+  retention: 8 years after account closure
+  owner: Compliance & Risk
+- source: sample.customers
+  field: pan
+  purpose: Identity verification (KYC)
+  owner: Compliance & Risk
+- source: sample.customers
+  field: pincode
+  purpose: Identity verification (KYC)
+  retention: 8 years after account closure
+  owner: Compliance & Risk
+- source: sample.accounts
+  field: ifsc
+  purpose: Account servicing
+  retention: 10 years after account closure
+  owner: Finance
+- source: sample.accounts
+  field: upi_handle
+  purpose: Account servicing
+  retention: 10 years after account closure
+  owner: Finance
+- source: sample.accounts
+  field: debit_card
+  purpose: Account servicing
+  retention: 10 years after account closure
+  owner: Finance
+- source: sample.accounts
+  field: credit_card
+  purpose: Account servicing
+  retention: 10 years after account closure
+  owner: Finance
+- source: sample.kyc_documents
+  field: passport_number
+  purpose: Identity verification (KYC)
+  retention: 8 years after account closure
+  owner: Compliance & Risk
+- source: sample.kyc_documents
+  field: voter_epic
+  purpose: Identity verification (KYC)
+  retention: 8 years after account closure
+  owner: Compliance & Risk
+- source: sample.kyc_documents
+  field: dl_no
+  purpose: Identity verification (KYC)
+  owner: Compliance & Risk
+- source: sample.branch_visits
+  field: visit_pin
+  purpose: Branch footfall analytics
+  retention: 1 year
+- source: sample.support_tickets
+  field: raised_by_email
+  purpose: Customer support
+  retention: 3 years
+  owner: Customer Success
+- source: sample.support_tickets
+  field: callback_number
+  retention: 3 years
+  owner: Customer Success
+deliberate_gaps:
+- source: customers_kyc.csv
+  field: passport_no
+  missing: purpose, retention (no declaration)
+- source: customers_kyc.csv
+  field: driving_licence
+  missing: retention
+- source: customers_kyc.csv
+  field: permanent_address
+  missing: purpose
+- source: payments.csv
+  field: upi_id
+  missing: retention
+- source: payments.csv
+  field: refund_upi
+  missing: purpose, retention (no declaration)
+- source: delivery_orders.csv
+  field: alt_contact
+  missing: purpose
+- source: delivery_orders.csv
+  field: drop_location
+  missing: purpose, retention (no declaration)
+- source: delivery_orders.csv
+  field: pickup_lat_long
+  missing: retention
+- source: hr_employees.csv
+  field: birth_date
+  missing: retention
+- source: hr_employees.csv
+  field: reimbursement_upi
+  missing: purpose, retention (no declaration)
+- source: hr_employees.csv
+  field: home_pin
+  missing: purpose
+- source: patients.csv
+  field: guardian_name
+  missing: purpose, retention (no declaration)
+- source: patients.csv
+  field: gps_location
+  missing: retention
+- source: vague_columns.csv
+  field: col_a
+  missing: purpose, retention (no declaration)
+- source: vague_columns.csv
+  field: col_b
+  missing: purpose, retention (no declaration)
+- source: vague_columns.csv
+  field: col_c
+  missing: purpose, retention (no declaration)
+- source: vague_columns.csv
+  field: col_d
+  missing: purpose, retention (no declaration)
+- source: vague_columns.csv
+  field: col_e
+  missing: purpose, retention (no declaration)
+- source: vague_columns.csv
+  field: col_f
+  missing: purpose, retention (no declaration)
+- source: vague_columns.csv
+  field: col_g
+  missing: purpose, retention (no declaration)
+- source: vague_columns.csv
+  field: col_h
+  missing: purpose, retention (no declaration)
+- source: vague_columns.csv
+  field: col_i
+  missing: purpose, retention (no declaration)
+- source: vague_columns.csv
+  field: col_j
+  missing: purpose, retention (no declaration)
+- source: vague_columns.csv
+  field: col_k
+  missing: purpose, retention (no declaration)
+- source: vague_columns.csv
+  field: col_l
+  missing: purpose, retention (no declaration)
+- source: vague_columns.csv
+  field: col_m
+  missing: purpose, retention (no declaration)
+- source: vague_columns.csv
+  field: col_u
+  missing: purpose, retention (no declaration)
+- source: vague_columns.csv
+  field: col_w
+  missing: purpose, retention (no declaration)
+- source: vague_columns.csv
+  field: col_s
+  missing: purpose, retention (no declaration)
+- source: vague_columns.csv
+  field: col_t
+  missing: purpose, retention (no declaration)
+- source: sample.customers
+  field: pan
+  missing: retention
+- source: sample.customers
+  field: passport_no
+  missing: purpose, retention (no declaration)
+- source: sample.customers
+  field: address
+  missing: purpose, retention (no declaration)
+- source: sample.accounts
+  field: account_number
+  missing: purpose, retention (no declaration)
+- source: sample.kyc_documents
+  field: dl_no
+  missing: retention
+- source: sample.branch_visits
+  field: latitude
+  missing: purpose, retention (no declaration)
+- source: sample.branch_visits
+  field: longitude
+  missing: purpose, retention (no declaration)
+- source: sample.support_tickets
+  field: callback_number
+  missing: purpose

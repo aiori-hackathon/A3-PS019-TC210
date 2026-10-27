@@ -1,0 +1,30 @@
+{
+  "defaults": {
+    "project": 1,
+    "env": 1
+  },
+  "actives": {
+    "project": 1,
+    "env": 1
+  },
+  "projects": [
+    {
+      "idx": 1,
+      "id": "93513000000013056",
+      "name": "PriVista",
+      "domain": {
+        "id": "50047140665",
+        "name": "privista-60093126740.development"
+      },
+      "timezone": "Asia/Kolkata",
+      "env": [
+        {
+          "idx": 1,
+          "id": "60093126740",
+          "name": "Development",
+          "type": 3
+        }
+      ]
+    }
+  ]
+}

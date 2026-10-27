@@ -1,0 +1,11 @@
+.env
+.venv
+venv/
+__pycache__/
+**/__pycache__/
+
+# Runtime state lives in Supabase in production
+data/uploads/
+data/store_state*.json
+data/rules_state.json
+data/declared_metadata.json

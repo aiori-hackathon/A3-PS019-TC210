@@ -13,7 +13,7 @@ const client = axios.create({
 export function errorMessage(err) {
   if (!err) return 'Unknown error';
   if (err.code === 'ERR_NETWORK') {
-    return `Cannot reach the PriVista backend at ${API_BASE_URL}. Start it with "uvicorn app.main:app --port 8000" in /backend.`;
+    return `Cannot reach the PriVista . Start it with "uvicorn app.main:app --port 8000" in /backend.`;
   }
   const detail = err.response?.data?.detail;
   if (typeof detail === 'string') return detail;
@@ -71,6 +71,11 @@ export const api = {
     const fd = new FormData();
     fd.append('file', file);
     return data(client.post('/scan/upload', fd, { headers: { 'Content-Type': 'multipart/form-data' } }));
+  },
+  uploadSqlite: (file) => {
+    const fd = new FormData();
+    fd.append('file', file);
+    return data(client.post('/scan/upload-sqlite', fd, { headers: { 'Content-Type': 'multipart/form-data' } }));
   },
   startScan:       (payload) => data(client.post('/scan/start', payload)),
   getScan:         (scanId) => data(client.get(`/scan/${scanId}`)),

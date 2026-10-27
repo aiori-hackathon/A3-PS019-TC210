@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://privista-backend-50047140665.development.catalystappsail.in/api/$1"
+    },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
+}
