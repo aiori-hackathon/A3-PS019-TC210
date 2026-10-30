@@ -29,6 +29,7 @@
 
 <b>Explore the live PriVista web application:</b> <a href="https://privista-2-0.vercel.app/"><img src="https://img.shields.io/badge/PriVista-Deployed_WebApp-2563EB?style=for-the-badge&labelColor=0F172A&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAAYFBMVEUAAAEInfILYewMK6YHLKsDV7AQX58FoeYEFG5kI/QNL6kACvkDbuMEYtcJpdwPKl8DSasBCTYRM%2BMJotsezfoMKJoBWdtqDPsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABIBf72AAAAGHRSTlMC7%2B5oGxjxohHxnwISWV74VljZJv/jpQTm957mAAABJklEQVR42k1SCZKAIAxLSwEVAWU9/v/TbavjbkZHTZseQeDBj15ETd9WvSf8ozO1RlnfUIBY3pQ1U476fEPbVlxgtLziZhkhCspUL8orWs5ExMA8I4aq8omr9qKDPp63pao28oRIDmbjwQjFAwJj02KAGOGlIns%2BPlw2lSsurbHYVraXLJjCplNB%2BGJF3TUR7WcKik1WmyooP86O3uk4AA3EZntzFYzTyyfrtoYgragx1/V27YmfMWSxFsBwuxxMnPRxh1sVMuR%2B6ImZEvVEbrx8CwibQBW822cpMgLmMYbxHWZaelPDrLBluKfj0NFc4vXNU%2BbU93QQEnvAz%2BpcdC3svknnJ/D2rc/5WR3m86XvG6u6ZT/EhnSey/79J2p/JT35P/N/ASUrCoK/ZeM7AAAAAElFTkSuQmCC" alt="Deployed WebApp" /></a>
 
+<b>Watch the complete demo video of webapp PriVista on YouTube:</b>[![Demo Video](https://img.shields.io/badge/▶️_Watch-Demo_Video-blueviolet?style=for-the-badge)](https://youtu.be/9MU7WXZddF4)
 
 ## 📑 Table of Contents
 
